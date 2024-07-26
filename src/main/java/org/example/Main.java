@@ -1,5 +1,6 @@
 package org.example;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
@@ -16,17 +17,22 @@ public class Main {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().registerModule(new JavaTimeModule());
 
     public static void main(String[] args) {
+        String getConnection = createGetConnection(MAIN_URI + '?' + getRequestParams());
+        try {
+            RemoteJobDetails jobDetails = OBJECT_MAPPER.readValue(getConnection, RemoteJobDetails.class);
+            System.out.println(jobDetails);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static String createGetConnection(String uri) {
         HttpURLConnection connection = null;
         try {
-            connection = getHttpURLConnectionWith(MAIN_URI + '?' + getRequestParams());
+            connection = getHttpURLConnectionWith(uri);
             connection.setRequestMethod("GET");
 
-            String response = getResponseMsg(connection);
-
-            RemoteJobDetails jobDetails = OBJECT_MAPPER.readValue(response, RemoteJobDetails.class);
-            System.out.println(jobDetails);
-
-            connection.disconnect();
+            return getResponseMsg(connection);
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
