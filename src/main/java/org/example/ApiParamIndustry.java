@@ -1,0 +1,21 @@
+package org.example;
+
+enum ApiParamIndustry {
+    BUSINESS,
+    COPYWRITING,
+    SUPPORTING,
+    TECHNICAL_SUPPORT,
+    DATA_SCIENCE,
+    DESIGN_MULTIMEDIA,
+    WEB_APP_DESIGN,
+    ADMIN,
+    ENGINEERING,
+    ACCOUNTING_FINANCE,
+    HR,
+    MARKETING,
+    SELLER,
+    SEO,
+    SMM,
+    MANAGEMENT,
+    DEV
+}

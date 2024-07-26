@@ -1,5 +1,8 @@
 package org.example;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -10,26 +13,44 @@ public class Main {
 
     //free api website: https://jobicy.com/jobs-rss-feed
     private static final String MAIN_URI = "https://jobicy.com/api/v2/remote-jobs";
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().registerModule(new JavaTimeModule());
 
     public static void main(String[] args) {
+        HttpURLConnection connection = null;
         try {
-            HttpURLConnection connection = getHttpURLConnectionWith(MAIN_URI);
+            connection = getHttpURLConnectionWith(MAIN_URI + '?' + getRequestParams());
             connection.setRequestMethod("GET");
 
-            String response = getResponse(connection);
-            System.out.println(response);
+            String response = getResponseMsg(connection);
+
+            RemoteJobDetails jobDetails = OBJECT_MAPPER.readValue(response, RemoteJobDetails.class);
+            System.out.println(jobDetails);
+
+            connection.disconnect();
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
     }
 
-    private static String getResponse(final HttpURLConnection connection) {
+    private static String getRequestParams() {
+        return new ApiRequestParams()
+                .withGeo(ApiParamGeo.POLAND)
+                .withIndustry(ApiParamIndustry.DEV)
+                .toStringParams();
+    }
+
+    private static String getResponseMsg(final HttpURLConnection connection) {
         try (BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
             StringBuilder response = new StringBuilder();
             String inputLine;
             while ((inputLine = in.readLine()) != null) {
                 response.append(inputLine);
             }
+            in.close();
             return response.toString();
         } catch (IOException e) {
             throw new RuntimeException(e);
