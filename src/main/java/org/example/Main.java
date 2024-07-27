@@ -70,6 +70,7 @@ public class Main {
         connection.setReadTimeout(8000);
         connection.setConnectTimeout(10000);
         connection.setRequestProperty("Accept", "application/json");
+        connection.setRequestProperty("Content-Type", "application/json; utf-8");
         return connection;
     }
 }
